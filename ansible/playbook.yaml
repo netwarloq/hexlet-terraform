@@ -39,6 +39,6 @@
             init_config:
             instances:
               - name: app_http
-                search_string: ['website']
+                search_string: ['http_check']
                 url:  '{{ ansible_host }}:5000'
       tags: [datadog, monitoring]
