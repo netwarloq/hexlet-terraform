@@ -1,0 +1,44 @@
+---
+
+- hosts: all
+  gather_facts: no
+  vars_files:
+    - .vault.yml
+  tasks:
+    - name: Copy app dir
+      ansible.builtin.copy:
+        src: ../app/
+        dest: '{{ app_dir }}'
+      tags: app
+
+    - name: Install pip
+      apt:
+        name: python3-pip
+        update_cache: yes
+        cache_valid_time: 604800 # 1 week
+      tags: [app, flask]
+
+    - name: Install Flask with pip
+      pip:
+        name: Flask
+      tags: [app, flask]
+
+    - name: Start Flask App
+      shell: | 
+        nohup flask --app {{ app_path }} run -h {{ ansible_host }} > log.txt 2>&1 &
+      tags: [app, tags, startapp]
+
+    - name: DataDog setup
+      include_role:
+        name: datadog.datadog
+      vars:
+        datadog_api_key: "{{ dd_api_key }}"
+        datadog_site: "datadoghq.eu"
+        datadog_checks:
+          process:
+            init_config:
+            instances:
+              - name: app_http
+                search_string: ['website']
+                url:  '{{ ansible_host }}:5000'
+      tags: [datadog, monitoring]
