@@ -1,0 +1,12 @@
+*.auto.tfvars
+.terraform
+terraform.tfstate
+*.backup
+
+secret.*
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+ansible/.vault.yml
+ansible/inventory
